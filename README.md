@@ -19,7 +19,7 @@ git clone https://github.com/JisongImSorry/EZMigrator.git
 Navigate to the project directory.
 
 ```bash
-cd EZMigrate
+cd EZMigrator
 ```
 
 Install the necessary packages using pip. Please ensure that you are running an appropriate version of Python for these packages.
