@@ -6,12 +6,14 @@ EZMigrate is a powerful migration tool designed to transfer data from Amazon S3 
 
 [Documentation](https://jisongimsorrys-organization.gitbook.io/ezmigrate/)
 
+# Prerequisite
+
 # Installation
 
 Clone this repository to your local machine.
 
 ```bash
-git clone https://github.com/yourusername/EZMigrate.git
+git clone https://github.com/JisongImSorry/EZMigrator.git
 ```
 
 Navigate to the project directory.
@@ -31,7 +33,7 @@ pip install -r requirements.txt
 Once you have installed all the necessary packages, you can begin using EZMigrate to facilitate your data transfer needs.
 
 ```bash
-python ezmigrate.py
+python main.py
 ```
 
 # Configuration

@@ -4,16 +4,27 @@ import os
 import re
 
 def upload_file(bucket, object, contentType):
-    bucket = "gnfd://" + bucket
-    object_location = "tmp/" + object
-    print("Uploading file " + object + " to " + bucket)
-    print(bucket + "/" + object)
-    result = subprocess.call(["./gnfd-cmd", "storage", "put", "--contentType", contentType, object_location, bucket + "/" + object])
-    print("Upload " + object + " to " + bucket + " complete!")
+    try:
+        bucket = "gnfd://" + bucket
+        object_location = "tmp/" + object
+        print("Uploading file " + object + " to " + bucket)
+        print(bucket + "/" + object)
+        uploadRes = subprocess.check_output(["./gnfd-cmd", "storage", "put", "--contentType", contentType, object_location, bucket + "/" + object])
+        if "error" in uploadRes.decode():
+            print(uploadRes.decode())
+            print("Error creating bucket. Please try again with another name.")
+            return -1
+        else:
+            print("Upload " + object + " to " + bucket + " complete!")
+            return 0
+    except:
+        print("Error uploading file. Please try again.")
+        return -1
 
-def create_grfd_bucket(bucket, primarySP):
+def create_grfd_bucket(bucket, primarySP, primarySPName):
     print("Creating bucket", bucket, "in BNB Greenfield...")
-    print("using primary SP", primarySP)
+    print("using primary SP", primarySPName)
+    print("")
     createBucketRes = subprocess.check_output(["./gnfd-cmd", "storage", "make-bucket", "--primarySP", primarySP+"", bucket])
     if "error" in createBucketRes.decode():
         print(createBucketRes.decode())
@@ -55,3 +66,17 @@ def check_grfd_credential():
 
         result = subprocess.call(["./gnfd-cmd", "gen-key", "-privKeyFile", "key.txt", "key.json"])
         print("Credentials created!")
+
+def cancel_create_object(bucket, object):
+    print("Canceling create object...")
+    try:
+        cancelRes = subprocess.check_output(["./gnfd-cmd", "storage", "cancel-create-obj", bucket + "/" + object])
+        if "error" in cancelRes.decode():
+            print(cancelRes.decode())
+            return -1
+        else:
+            print("Cancel " + object + " to " + bucket + " complete!")
+            return 0
+    except:
+        print("Error canceling create object.")
+        return -1

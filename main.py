@@ -25,12 +25,16 @@ s3Client, s3Resource = aws.get_aws_credentials()
 
 # Check if GNFD Credentials exist
 print("Checking if GNFD Credentials exist...")
+print("")
+print("")
 grfd.check_grfd_credential()
 
 # Get List of my AWS Buckets
 myBuckets = aws.list_buckets(s3Resource)
 
 print("I've found these buckets in your AWS account!")
+print("")
+print("")
 
 questions = [
   inquirer.List('targetBucket',
@@ -44,6 +48,7 @@ targetBucket = answers['targetBucket']
 targetAwsBucket = targetBucket[:]
 
 print("You've selected " + targetBucket + " as your target bucket!")
+print("")
 
 print("AWS Configuration complete!")
 print("")
@@ -77,6 +82,7 @@ if(answers['primarySP'] == "Yes, Let me choose one"):
     primarySPName = answers['primarySP']
 
 print("Using [ " + primarySPName + " ] as your primary service provider :)")
+print("")
 
 targetBucketName =  targetBucket + "-" + util.rand_string().lower()
 targetBucketLocation = "gnfd://" + targetBucketName 
@@ -103,7 +109,7 @@ if(answers['bucketName'] == "Yes, I have a better name"):
 
 while True:
     # Create Bucket
-    bucketCreationRes = grfd.create_grfd_bucket(targetBucketLocation, primarySP)
+    bucketCreationRes = grfd.create_grfd_bucket(targetBucketLocation, primarySP, primarySPName)
     if(bucketCreationRes == 0):
         break
     else:
@@ -118,11 +124,21 @@ while True:
 
 print("Migrating files...")
 files2Migrate = aws.list_files(s3Resource, targetBucket)
+print(files2Migrate)
 
 for file in files2Migrate:
     fileName=file[:]
+    if fileName.endswith("/"):
+        continue
     aws.download_file(s3Client, targetBucket, fileName)
     content_type = aws.get_file_content_type(s3Client, targetAwsBucket, fileName)
-    grfd.upload_file(targetBucketName, fileName, content_type)
+    uploadRes = grfd.upload_file(targetBucketName, fileName, content_type)
+    if(uploadRes == -1):
+        print("Error uploading file : " + fileName)
+        print("Canceling creation...")
+        grfd.cancel_create_object(targetBucketName, fileName)
+        print("Retrying,..")
+        uploadRes = grfd.upload_file(targetBucketName, fileName, content_type)
+    print("")
 
 print("Migration complete!")

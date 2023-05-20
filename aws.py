@@ -1,5 +1,6 @@
 import boto3
 import inquirer
+import os
 
 def is_aws_credentials_valid(s3Client):
     try:
@@ -50,6 +51,12 @@ def list_files(s3Resource, bucket):
 
 def download_file(s3Client, bucket, object):
   print("Downloading file " + object + " from " + bucket)
+  object_location = "tmp/" + object
+  directory = os.path.dirname(object_location)
+
+  if not os.path.exists(directory):
+    os.makedirs(directory)
+
   s3 = s3Client
   s3.download_file(bucket, object, 'tmp/' + object)
   print("Download " + object + " from " + bucket + " complete!")
